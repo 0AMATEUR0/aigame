@@ -37,7 +37,7 @@ class Consumable(Item):
         raise NotImplementedError("子类必须实现 use() 方法")
 
 
-class Potion(Consumable):
+class HPPotion(Consumable):
     def __init__(self, name, heal_amount, description="恢复生命的药水", value=0):
         super().__init__(name, description, value)
         self.heal_amount = heal_amount

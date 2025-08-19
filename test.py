@@ -1,30 +1,43 @@
-from core.battle import battle
+from core.Skill.skill import Skill
+from core.battle import BattleManager
 from core.charactor import Charactor, Monster
-from core.equipment.Item import Weapon, Armor, Potion
+from core.equipment.Item import Weapon, Armor, HPPotion
+from utils.dice import roll
 
 if __name__ == "__main__":
-    # 创建角色
-    hero = Charactor("勇者", gender="男", strength=6, agility=4, max_hp=20, hp=10)
-    goblin = Monster("哥布林", strength=4, agility=3, max_hp=12, hp=12, exp_reward=1000)
+    hero = Charactor("勇者", gender="男", level=2, strength=5, agility=4, hp=20, max_hp=20)
+    mage = Charactor("法师", gender="女", level=1, strength=2, agility=3, hp=12, max_hp=12, max_mp=20, mp=20)
 
-    # 创建武器、防具、药水
-    sword = Weapon("长剑", attack_bonus=2, damage_dice="1d8")
-    armor = Armor("皮甲", defense_bonus=2)
-    potion = Potion("小型治疗药水", heal_amount=8)
+    # 火球术 1d8 + INT
+    fireball = Skill(
+        name="火球术",
+        damage_func=lambda user, target: roll("3d8") + user.intelligence,
+        mp_cost=3,
+        target_type="aoe",
+        uses_per_battle = 3,
+        description="对单个敌人造成智力加成伤害 (3d8 + INT)"
+    )
 
-    # 装备
-    hero.equip("weapon", sword)
-    hero.equip("armor", armor)
+    # 雷霆风暴 1d4 + INT 群体
+    thunderstorm = Skill(
+        name="雷霆风暴",
+        damage_func=lambda user, target: roll("6d4") + user.intelligence,
+        mp_cost=5,
+        target_type="aoe",
+        uses_per_battle=3,
+        description="对所有敌人造成智力加成伤害 (6d4 + INT)"
+    )
 
-    # 背包
-    hero.add_item(potion)
+    mage.add_skill(fireball)
+    mage.add_skill(thunderstorm)
 
-    # 战斗开始前喝药水
-    hero.use_item("小型治疗药水")
+    goblin1 = Monster("哥布林1", level=1, hp=50, max_hp=50, strength=2, agility=2, exp_reward=50)
+    goblin2 = Monster("哥布林2", level=1, hp=30, max_hp=30, strength=2, agility=2, exp_reward=50)
 
-    # 战斗
-    battle(hero, goblin)
+    # # 自动战斗
+    # battle = BattleManager(players=[hero, mage], enemies=[goblin1, goblin2], mode="auto")
+    # battle.start_battle()
 
-    hero.allocate_points('strength', 2)
-    hero.allocate_points('agility', 2)
-    hero.allocate_points('intelligence', 2)
+    # 手动战斗
+    battle = BattleManager(players=[hero, mage], enemies=[goblin1, goblin2], mode="manual")
+    battle.start_battle()

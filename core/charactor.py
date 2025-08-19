@@ -14,30 +14,40 @@ EXP_TABLE = {
 # 公共实体类
 # ======================
 class Entity:
-    def __init__(self, name, level=1, max_hp=10, hp=None, strength=0, agility=0, intelligence=0):
+    def __init__(self, name, level=1, max_hp=10, hp=None, max_mp=10, mp=None, strength=0, agility=0, intelligence=0, equipment=None):
         self.name = name
         self.level = level
         self.max_hp = max_hp
         self.hp = hp or max_hp
+        self.max_mp = max_mp
+        self.mp = mp
         self.strength = strength
         self.agility = agility
         self.intelligence = intelligence
+        self.equipment = equipment or {"weapon": None, "armor": None}
 
     # 战斗方法
     def attack(self, target):
+        """普通攻击，掷 d20 决定命中，伤害用骰子 + 力量"""
         attack_roll = random.randint(1, 20) + self.agility
         target_ac = 10 + (target.agility // 2)
-        if hasattr(target, 'equipment') and target.equipment.get("armor"):
+        if target.equipment["armor"]:
             target_ac += target.equipment["armor"].defense_bonus
 
-        if attack_roll >= target_ac:
-            if hasattr(self, 'equipment') and self.equipment.get("weapon"):
-                damage = self.equipment["weapon"].get_damage(self.strength)
+        crit = False
+        if attack_roll - self.agility == 20:  # 自然 20
+            crit = True
+
+        if attack_roll >= target_ac or crit:
+            # 伤害骰子
+            if self.equipment["weapon"]:
+                damage = self.equipment["weapon"].get_damage(self.strength, crit=crit)
             else:
-                damage = roll("1d4") + self.strength
+                damage = roll("1d4", crit=crit) + self.strength  # 徒手攻击
             target.take_damage(damage, source=self)
-            if target.is_alive():
-                print(f"{self.name} 命中 {target.name}，造成 {damage} 点伤害！（{target.hp}/{target.max_hp} HP）")
+            if crit:
+                print(f"{self.name} 暴击了！")
+            print(f"{self.name} 命中 {target.name}，造成 {damage} 点伤害！({target.hp}/{target.max_hp} HP)")
         else:
             print(f"{self.name} 攻击未命中 {target.name}！")
 
@@ -62,16 +72,20 @@ class Entity:
 class Charactor(Entity):
     def __init__(self, name, gender, career="footman", background="", level=1,
                  experience=0, attribute_points=0,
-                 max_hp=10, hp=10, strength=0, agility=0, intelligence=0,
-                 inventory=None, equipment=None):
-        super().__init__(name, level, max_hp, hp, strength, agility, intelligence)
+                 max_hp=10, hp=10, max_mp=10, mp=10, strength=0, agility=0, intelligence=0,
+                 inventory=None, skills=None):
+        super().__init__(name, level, max_hp, hp, max_mp, mp, strength, agility, intelligence)
         self.gender = gender
         self.career = career
         self.background = background
         self.experience = experience
         self.attribute_points = attribute_points
         self.inventory = inventory or []
-        self.equipment = equipment or {"weapon": None, "armor": None}
+        self.skills = skills or []
+
+    def add_skill(self, skill):
+        self.skills.append(skill)
+        print(f"{self.name} 学会了技能：{skill.name}")
 
     # 升级逻辑
     def exp_to_next_level(self):
