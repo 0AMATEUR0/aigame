@@ -1,0 +1,47 @@
+AI 剧情生成：根据当前世界状态自动生成分支任务。
+
+AI NPC 对话：NPC 根据角色属性、阵营、过往事件来动态生成台词。
+
+AI 战斗策略：敌人使用 AI 决策选择攻击方式，而不是固定脚本。
+
+AI 世界演化：随着时间推移，世界会自动发生变化（王国被入侵、城镇繁荣等）。
+
+ai_dnd_game/
+│
+├── main.py                      # 游戏入口
+├── config.py                    # 全局配置（常量、数值设定）
+├── requirements.txt             # 依赖
+│
+├── core/                        # 核心游戏机制
+│   ├── __init__.py
+│   ├── character.py              # 角色类（玩家 / NPC）
+│   ├── stats.py                  # 属性与成长系统
+│   ├── skills.py                 # 技能系统
+│   ├── inventory.py              # 背包与装备
+│   ├── combat.py                 # 战斗系统
+│   ├── world.py                  # 世界与地图
+│   ├── quest.py                  # 任务系统
+│   └── dialogue.py               # 对话 / AI 生成对话
+│
+├── ai/                           # AI 相关逻辑
+│   ├── __init__.py
+│   ├── npc_brain.py              # NPC 行为决策
+│   ├── dialogue_generator.py     # AI 对话生成
+│   ├── quest_generator.py        # AI 任务生成
+│   └── world_generator.py        # AI 世界设定生成
+│
+├── data/                         # 静态数据
+│   ├── items.json                # 物品表
+│   ├── skills.json               # 技能表
+│   ├── enemies.json              # 敌人设定
+│   └── world_map.json            # 世界地图
+│
+├── tests/                        # 单元测试
+│   ├── test_character.py
+│   ├── test_combat.py
+│   └── ...
+│
+└── utils/                        # 工具模块
+    ├── __init__.py
+    ├── logger.py
+    └── dice.py                   # 骰子模拟

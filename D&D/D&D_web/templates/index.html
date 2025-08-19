@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>AI D&D 网页版（事件链）</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  body{background:#0f1720;color:#e6eef8;font-family:"Microsoft YaHei",sans-serif;padding:18px}
+  .wrap{max-width:900px;margin:0 auto}
+  h1{color:#ffd873;text-align:center}
+  .card{background:#071022;padding:16px;border-radius:10px;margin-bottom:12px}
+  #sceneText{min-height:80px;white-space:pre-wrap;line-height:1.6}
+  button{background:#1f6feb;color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;margin:6px 6px 6px 0}
+  button:hover{transform:translateY(-2px)}
+  #log{max-height:200px;overflow:auto;background:#061022;padding:8px;border-radius:6px;color:#9fb7d8}
+  input{padding:6px 8px;border-radius:6px;border:1px solid #123;background:#081022;color:#e6eef8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI D&D — 全 AI 事件链</h1>
+
+  <div class="card">
+    <label>角色名：<input id="playerName" placeholder="侠客"/></label>
+    <button id="btnSetName">设置</button>
+    <button id="btnReset" style="background:#ff7b6b">重置游戏</button>
+  </div>
+
+  <div class="card">
+    <div id="sceneText">加载中……</div>
+    <div id="choices" style="margin-top:12px"></div>
+    <div id="narration" style="margin-top:12px;color:#bfe3b9"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="color:#ffd873">回合记录</h3>
+    <div id="log"></div>
+  </div>
+</div>
+<script src="/static/main.js"></script>
+</body>
+</html>
