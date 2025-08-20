@@ -42,6 +42,7 @@ class BattleManager:
     # ------------------
     # 玩家回合
     # ------------------
+    # ------------------ 玩家回合 ------------------
     def player_turn(self):
         escaped_players = []
         for player in self.all_alive(self.players):
@@ -65,10 +66,7 @@ class BattleManager:
 
                 # 显示背包道具
                 self.log_msg("\n背包道具：")
-                items_list = []
-                for name, items in player.inventory.items():
-                    for item in items:
-                        items_list.append(item)
+                items_list = player.inventory.list_items()
                 if items_list:
                     for j, item in enumerate(items_list):
                         self.log_msg(f"{j + 1}. {item.name}")
@@ -108,10 +106,8 @@ class BattleManager:
                                 item = items_list[idx]
                                 if isinstance(item, Consumable):
                                     item.use(player)
-                                    # 从背包删除
-                                    player.inventory[item.name].remove(item)
-                                    if not player.inventory[item.name]:
-                                        del player.inventory[item.name]
+                                    player.inventory.remove(item.name, 1)
+                                    self.log_msg(f"{player.name} 使用了 {item.name}")
                                     break
                                 else:
                                     self.log_msg("该物品不可使用，请重新选择。")

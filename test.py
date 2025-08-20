@@ -59,6 +59,8 @@ if __name__ == "__main__":
     # 给玩家装备武器
     sword = Weapon("铁剑", attack_bonus=2, damage_dice="1d6")
     staff = Weapon("法杖", attack_bonus=1, damage_dice="1d4")
+    player1.add_item(sword)
+    player2.add_item(staff)
     player1.equip(sword)
     player2.equip(staff)
 
@@ -74,7 +76,7 @@ if __name__ == "__main__":
     # --------------------------
     # 创建敌人
     # --------------------------
-    monster1 = Monster("哥布林A", level=1, max_hp=20, strength=3, agility=20, intelligence=1, exp_reward=50)
+    monster1 = Monster("哥布林A", level=1, max_hp=20, strength=3, agility=10, intelligence=1, exp_reward=50)
     monster2 = Monster("哥布林B", level=1, max_hp=15, strength=2, agility=10, intelligence=1, exp_reward=40)
 
     # 敌人掉落

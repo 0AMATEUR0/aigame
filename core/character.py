@@ -1,5 +1,6 @@
 import random
 from core.equipment.Item import Consumable
+from core.inventory.inventory import Inventory
 from utils.dice import roll_detail, roll
 
 # ----------------------
@@ -100,7 +101,7 @@ class Character(Entity):
         self.background = background
         self.experience = experience
         self.attribute_points = attribute_points
-        self.inventory = inventory or {}
+        self.inventory = inventory or Inventory()
         self.skills = skills or []
 
     def get_info(self):
@@ -162,32 +163,13 @@ class Character(Entity):
 
     # 背包与物品
     def add_item(self, item):
-        if item.name not in self.inventory:
-            self.inventory[item.name] = []
-        self.inventory[item.name].append(item)
-        print(f"{self.name} 获得了物品：{item.name}")
+        self.inventory.add(item)
 
     def use_item(self, item_name):
-        if item_name in self.inventory and self.inventory[item_name]:
-            item = self.inventory[item_name][0]
-            if isinstance(item, Consumable):
-                item.use(self)
-                self.inventory[item_name].pop(0)
-                if not self.inventory[item_name]:  # 如果该物品用完，删除 key
-                    del self.inventory[item_name]
-                print(f"{self.name} 使用了 {item_name}")
-            else:
-                print(f"{item_name} 不能直接使用！")
-                return
-        print(f"没有找到可用物品：{item_name}")
+        self.inventory.use(item_name, self)
 
     def list_inventory(self):
-        if not self.inventory:
-            print(f"{self.name} 的背包是空的。")
-            return
-        print(f"{self.name} 的背包：")
-        for name, items in self.inventory.items():
-            print(f"- {name} x{len(items)}")
+        self.inventory.list_items()
 
     # 装备
     def equip(self, item):
@@ -199,16 +181,16 @@ class Character(Entity):
             print(f"无效装备槽位：{slot}")
             return
 
-        # 先从背包移除
-        if item.name in self.inventory and item in self.inventory[item.name]:
-            self.inventory[item.name].remove(item)
-            if not self.inventory[item.name]:
-                del self.inventory[item.name]
+        # 从背包移除
+        removed = self.inventory.remove(item.name, 1)
+        if not removed:
+            print(f"{item.name} 不在背包中，无法装备！")
+            return
 
         # 卸下旧装备
         if self.equipment[slot]:
             old_item = self.equipment[slot]
-            self.add_item(old_item)
+            self.inventory.add(old_item)
             print(f"{self.name} 卸下了 {old_item.name}。")
 
         # 装备新物品
@@ -220,10 +202,11 @@ class Character(Entity):
         if slot in self.equipment and self.equipment[slot]:
             item = self.equipment[slot]
             self.equipment[slot] = None
-            self.add_item(item)
+            self.inventory.add(item)
             print(f"{self.name} 卸下了 {item.name}。")
         else:
             print(f"{self.name} 没有装备在 {slot} 上。")
+
 
 # ======================
 # 怪物类
@@ -243,12 +226,12 @@ class Monster(Entity):
             print(f"{killer.name} 击杀了 {self.name}，获得 {self.exp_reward} 经验！")
             killer.gain_experience(self.exp_reward)
 
-        # 掉落物品
+        # ✅ 用 Inventory 来存放掉落
         if self.loot_table and killer:
             dropped_items = []
             for item, chance in self.loot_table:
                 chance = max(0.0, min(chance, 1.0))  # 限制在 0~1
-                roll_val = roll_detail("1d100")["total"]
+                roll_val = random.randint(1, 100)
                 if chance >= 1.0 or roll_val <= chance * 100:
                     dropped_items.append(item)
 
