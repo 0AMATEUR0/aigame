@@ -1,5 +1,8 @@
-class Inventory:
-    def __init__(self, capacity=None):
+from .abstract_inventory import AbstractInventory
+
+class Inventory(AbstractInventory):
+    def __init__(self, capacity=None, bag_type="普通背包"):
+        super().__init__(bag_type=bag_type)
         self.items = {}  # {item_name: [item1, item2, ...]}
         self.capacity = capacity  # 可选：格子/重量上限
 

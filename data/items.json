@@ -1,0 +1,95 @@
+{
+  "铁剑": {
+    "type": "weapon",
+    "name": "铁剑",
+    "description": "一把普通的铁制长剑",
+    "damage_dice": "1d8",
+    "damage_type": "物理",
+    "weapon_type": "近战",
+    "attack_bonus": 0,
+    "value": 15,
+    "rarity": "普通",
+    "level_requirement": 1,
+    "effects": {
+      "strength": 1
+    }
+  },
+  "魔法法杖": {
+    "type": "weapon",
+    "name": "魔法法杖",
+    "description": "镶嵌着魔法水晶的法杖",
+    "damage_dice": "1d6",
+    "damage_type": "魔法",
+    "weapon_type": "远程",
+    "attack_bonus": 2,
+    "value": 50,
+    "rarity": "优秀",
+    "level_requirement": 3,
+    "effects": {
+      "intelligence": 2
+    }
+  },
+  "皮甲": {
+    "type": "armor",
+    "name": "皮甲",
+    "description": "用皮革制成的轻便护甲",
+    "armor_class": 2,
+    "armor_type": "轻甲",
+    "value": 10,
+    "rarity": "普通",
+    "level_requirement": 1,
+    "effects": {
+      "agility": 1
+    }
+  },
+  "铁甲": {
+    "type": "armor",
+    "name": "铁甲",
+    "description": "厚重的铁制护甲",
+    "armor_class": 5,
+    "armor_type": "重甲",
+    "max_dex_bonus": 2,
+    "value": 30,
+    "rarity": "普通",
+    "level_requirement": 2,
+    "effects": {
+      "strength": 1
+    }
+  },
+  "小生命药水": {
+    "type": "hppotion",
+    "name": "小生命药水",
+    "description": "恢复少量生命值的红色药水",
+    "heal_amount": 10,
+    "value": 5,
+    "rarity": "普通",
+    "charges": 1
+  },
+  "大生命药水": {
+    "type": "hppotion",
+    "name": "大生命药水",
+    "description": "恢复大量生命值的红色药水",
+    "heal_amount": 25,
+    "value": 15,
+    "rarity": "优秀",
+    "charges": 1
+  },
+  "小魔法药水": {
+    "type": "mppotion",
+    "name": "小魔法药水",
+    "description": "恢复少量魔法值的蓝色药水",
+    "mana_amount": 10,
+    "value": 8,
+    "rarity": "普通",
+    "charges": 1
+  },
+  "魔法卷轴": {
+    "type": "consumable",
+    "name": "魔法卷轴",
+    "description": "包含一个魔法效果的卷轴",
+    "value": 20,
+    "rarity": "优秀",
+    "charges": 1,
+    "tags": ["魔法", "卷轴"]
+  }
+}

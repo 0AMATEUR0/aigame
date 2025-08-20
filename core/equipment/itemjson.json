@@ -1,0 +1,70 @@
+{
+  "铁剑": {
+    "type": "weapon",
+    "name": "铁剑",
+    "description": "一把普通的铁制长剑，适合新手冒险者使用",
+    "damage_dice": "1d8",
+    "damage_type": "物理",
+    "weapon_type": "近战",
+    "attack_bonus": 0,
+    "critical_range": 19,
+    "critical_multiplier": 2,
+    "value": 15,
+    "rarity": "普通",
+    "level_requirement": 1,
+    "weight": 3.0,
+    "effects": {"strength": 1}
+  },
+  "皮甲": {
+    "type": "armor",
+    "name": "皮甲",
+    "description": "用皮革制成的轻便护甲",
+    "armor_class": 2,
+    "armor_type": "轻甲",
+    "value": 10,
+    "rarity": "普通",
+    "level_requirement": 1,
+    "weight": 5.0,
+    "effects": {"agility": 1}
+  },
+  "魔法法杖": {
+    "type": "weapon",
+    "name": "魔法法杖",
+    "description": "镶嵌着魔法水晶的法杖，能够引导魔法能量",
+    "damage_dice": "1d6",
+    "damage_type": "魔法",
+    "weapon_type": "远程",
+    "attack_bonus": 2,
+    "critical_range": 20,
+    "critical_multiplier": 2,
+    "value": 80,
+    "rarity": "优秀",
+    "level_requirement": 3,
+    "weight": 2.0,
+    "effects": {"intelligence": 2}
+  },
+  "小生命药水": {
+    "type": "hp_potion",
+    "name": "小生命药水",
+    "description": "恢复少量生命值的红色药水",
+    "heal_amount": 10,
+    "value": 5,
+    "rarity": "普通"
+  },
+  "大生命药水": {
+    "type": "hp_potion",
+    "name": "大生命药水",
+    "description": "恢复大量生命值的红色药水",
+    "heal_amount": 25,
+    "value": 15,
+    "rarity": "优秀"
+  },
+  "小魔法药水": {
+    "type": "mp_potion",
+    "name": "小魔法药水",
+    "description": "恢复少量魔法值的蓝色药水",
+    "mana_amount": 10,
+    "value": 8,
+    "rarity": "普通"
+  }
+}
