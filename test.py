@@ -1,43 +1,92 @@
 from core.Skill.skill import Skill
 from core.battle import BattleManager
-from core.charactor import Charactor, Monster
+from core.character import Character, Monster
 from core.equipment.Item import Weapon, Armor, HPPotion
-from utils.dice import roll
+from utils.dice import roll, roll_detail
 
 if __name__ == "__main__":
-    hero = Charactor("勇者", gender="男", level=2, strength=5, agility=4, hp=20, max_hp=20)
-    mage = Charactor("法师", gender="女", level=1, strength=2, agility=3, hp=12, max_hp=12, max_mp=20, mp=20)
+    # --------------------------
+    # 创建道具
+    # --------------------------
+    hp_potion_small = HPPotion("小生命药水", heal_amount=10)
+    hp_potion_large = HPPotion("大生命药水", heal_amount=25)
 
-    # 火球术 1d8 + INT
+    # --------------------------
+    # 创建技能
+    # --------------------------
+    # 单体技能
+    def fireball_damage(user, target):
+        dmg_res = roll_detail("2d6")
+        damage = dmg_res["total"] + user.intelligence
+        return damage
+
     fireball = Skill(
-        name="火球术",
-        damage_func=lambda user, target: roll("3d8") + user.intelligence,
+        "火球术",
+        damage_func=fireball_damage,
+        mp_cost=5,
+        target_type="single",
+        description="对单体敌人造成火焰伤害",
+        uses_per_battle=3
+    )
+
+    # 群体技能
+    def whirlwind_damage(user, targets):
+        # targets 必须是列表
+        if not isinstance(targets, list):
+            targets = [targets]
+        results = []
+        for t in targets:
+            dmg_res = roll_detail("1d6")  # 示例伤害
+            damage = dmg_res["total"] + user.strength
+            results.append((t, damage))
+        return results
+
+    whirlwind = Skill(
+        "旋风斩",
+        damage_func=whirlwind_damage,
         mp_cost=3,
         target_type="aoe",
-        uses_per_battle = 3,
-        description="对单个敌人造成智力加成伤害 (3d8 + INT)"
+        description="对所有敌人造成旋风伤害",
+        uses_per_battle=2
     )
 
-    # 雷霆风暴 1d4 + INT 群体
-    thunderstorm = Skill(
-        name="雷霆风暴",
-        damage_func=lambda user, target: roll("6d4") + user.intelligence,
-        mp_cost=5,
-        target_type="aoe",
-        uses_per_battle=3,
-        description="对所有敌人造成智力加成伤害 (6d4 + INT)"
+    # --------------------------
+    # 创建玩家
+    # --------------------------
+    player1 = Character("战士A", gender="男", strength=5, agility=3, intelligence=1)
+    player2 = Character("法师B", gender="女", strength=2, agility=3, intelligence=5)
+
+    # 给玩家装备武器
+    sword = Weapon("铁剑", attack_bonus=2, damage_dice="1d6")
+    staff = Weapon("法杖", attack_bonus=1, damage_dice="1d4")
+    player1.equip(sword)
+    player2.equip(staff)
+
+    # 背包加入药水
+    player1.add_item(hp_potion_small)
+    player1.add_item(hp_potion_large)
+    player2.add_item(hp_potion_small)
+
+    # 技能加入玩家
+    player1.add_skill(whirlwind)
+    player2.add_skill(fireball)
+
+    # --------------------------
+    # 创建敌人
+    # --------------------------
+    monster1 = Monster("哥布林A", level=1, max_hp=20, strength=3, agility=20, intelligence=1, exp_reward=50)
+    monster2 = Monster("哥布林B", level=1, max_hp=15, strength=2, agility=10, intelligence=1, exp_reward=40)
+
+    # 敌人掉落
+    monster1.loot_table = [(hp_potion_small, 1.0)]
+    monster2.loot_table = [(hp_potion_large, 1.0)]
+
+    # --------------------------
+    # 开始战斗
+    # --------------------------
+    battle = BattleManager(
+        players=[player1, player2],
+        enemies=[monster1, monster2],
+        mode="manual"  # 手动回合，可选择攻击/道具/技能/逃跑
     )
-
-    mage.add_skill(fireball)
-    mage.add_skill(thunderstorm)
-
-    goblin1 = Monster("哥布林1", level=1, hp=50, max_hp=50, strength=2, agility=2, exp_reward=50)
-    goblin2 = Monster("哥布林2", level=1, hp=30, max_hp=30, strength=2, agility=2, exp_reward=50)
-
-    # # 自动战斗
-    # battle = BattleManager(players=[hero, mage], enemies=[goblin1, goblin2], mode="auto")
-    # battle.start_battle()
-
-    # 手动战斗
-    battle = BattleManager(players=[hero, mage], enemies=[goblin1, goblin2], mode="manual")
     battle.start_battle()

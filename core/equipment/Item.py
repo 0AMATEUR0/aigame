@@ -1,4 +1,4 @@
-from utils.dice import roll
+from utils.dice import roll_detail
 
 
 class Item:
@@ -10,22 +10,27 @@ class Item:
     def __repr__(self):
         return f"<Item: {self.name}>"
 
-class Weapon(Item):
-    def __init__(self, name, attack_bonus=0, damage_dice="1d6", description="", value=0):
-        super().__init__(name, description, value)
+class Weapon:
+    def __init__(self, name: str, damage_dice: str, attack_bonus: int = 0):
+        self.name = name
+        self.damage_dice = damage_dice  # 例如 "1d8"
         self.attack_bonus = attack_bonus
-        self.damage_dice = damage_dice  # 伤害骰子
+        self.slot = "weapon"  # 武器装备槽
 
-    def get_damage(self, strength):
-        roll_damage = roll(self.damage_dice)
-        print(f"{self.name} 造成了 {roll_damage}({self.damage_dice}) + {strength} + {self.attack_bonus} 点伤害！")
-        return roll_damage + strength + self.attack_bonus
+    def get_damage(self, strength: int, crit: bool = False) -> int:
+        """计算伤害，暴击时骰子翻倍"""
+        dmg_res = roll_detail(self.damage_dice, crit=crit)
+        damage = dmg_res["total"] + strength
+        print(f"{self.name} 伤害: {dmg_res['rolls']} + 力量({strength}) → {damage}")
+        return damage
+
 
 
 class Armor(Item):
     def __init__(self, name, defense_bonus=0, description="", value=0):
         super().__init__(name, description, value)
         self.defense_bonus = defense_bonus
+        self.slot = "armor"
 
 
 class Consumable(Item):
