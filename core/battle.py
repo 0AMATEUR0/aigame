@@ -1,6 +1,17 @@
 import math
 import random
-from core.equipment.Item import Consumable
+from core.equipment import Item
+from .character import Character
+
+def start_battle(player: Character, monster_type: str):
+    """
+    基础战斗系统
+    :param player: 玩家角色
+    :param monster_type: 怪物类型
+    """
+    print(f"战斗开始！玩家 vs {monster_type}")
+    # 这里是基础战斗逻辑实现
+    print("战斗结束！")
 
 class BattleManager:
     def __init__(self, players, enemies, mode="auto", log_callback=None):
@@ -104,7 +115,7 @@ class BattleManager:
                             idx = int(item_choice) - 1
                             if 0 <= idx < len(items_list):
                                 item = items_list[idx]
-                                if isinstance(item, Consumable):
+                                if isinstance(item, Item) and hasattr(item, 'use'):
                                     item.use(player)
                                     player.inventory.remove(item.name, 1)
                                     self.log_msg(f"{player.name} 使用了 {item.name}")
