@@ -3,7 +3,7 @@
 # ======================
 from typing import List
 
-from core.Item.item import EquipmentSlot
+from game.Item.item import EquipmentSlot
 from utils.dice import roll_detail
 
 
@@ -77,8 +77,8 @@ class Entity:
         crit = (natural_roll == 20)  # 暴击判定
 
         target_ac = 10 + (target.DEX - 10) // 2  # 基础AC
-        if target.equipment["armor"]:  # 如果目标有护甲
-            target_ac += target.equipment["armor"].armor_class
+        if target.equipment[EquipmentSlot.ARMOR]:  # 如果目标有护甲
+            target_ac += target.equipment[EquipmentSlot.ARMOR].armor_class
 
         print(f"{self.name} 掷命中骰子: d20={natural_roll} + 敏捷修正({self.DEX}) → {attack_roll} vs AC {target_ac}")
 
@@ -88,10 +88,10 @@ class Entity:
                 damage = self.equipment.get(EquipmentSlot.WEAPON).get_damage(self.STR, crit=crit)
             else:
                 dmg_res = roll_detail("1d4", crit=crit)
-                damage = dmg_res.total + self.STR
-                print(f"{self.name} 徒手攻击伤害: {dmg_res.rolls} + 力量({self.STR}) → {damage}")
+                damage = dmg_res.total + (self.STR - 10)//2
+                print(f"{self.name} 徒手攻击伤害: {dmg_res.rolls} + 力量({(self.STR - 10)//2}) → {damage}")
 
-            target.take_damage(damage, source=self)
+            target.take_damage(damage)
 
             if crit:
                 print(f"✨ 暴击！{self.name} 重创了 {target.name}！")
@@ -107,7 +107,7 @@ class Entity:
     def heal(self, amount: int):
         self.HP = min(self.HP + amount, self.MAX_HP)
 
-    # 治疗
+    # 是否存活
     def is_alive(self) -> bool:
         return self.HP > 0
 

@@ -38,7 +38,7 @@
 #### 使用预设物品
 
 ```python
-from core.Item.item import create_preset_item
+from game.Item.item import create_preset_item
 
 # 创建预设物品
 iron_sword = create_preset_item("铁剑")
@@ -49,7 +49,7 @@ hp_potion = create_preset_item("小生命药水")
 #### 使用工厂创建物品
 
 ```python
-from core.Item.item import ItemFactory, ItemRarity
+from game.Item.item import ItemFactory, ItemRarity
 
 # 创建自定义武器
 custom_sword = ItemFactory.create_weapon(
@@ -85,7 +85,7 @@ custom_potion = ItemFactory.create_hp_potion(
 #### 从JSON文件加载物品
 
 ```python
-from core.Item.item import load_items_from_json
+from game.Item.item import load_items_from_json
 
 # 从JSON文件加载物品
 items = load_items_from_json("data/items.json")
@@ -95,8 +95,9 @@ iron_sword = items["铁剑"]
 ### 角色装备管理
 
 #### 装备物品
+
 ```python
-from core.character import Character
+from game.Entity.character import Character
 
 player = Character(name="冒险者", level=5)
 

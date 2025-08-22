@@ -1,7 +1,7 @@
-from core.Skill.skill import Skill
-from core.battle import BattleManager
-from core.character import Character, Monster
-from core.Item.item import Weapon, Armor, HPPotion
+from game.Skill.skill import Skill
+from game.battle import BattleManager
+from game.Entity.entityfactory import EntityFactory
+from game.Item.item import Weapon, HPPotion
 from utils.dice import roll_detail
 
 if __name__ == "__main__":
@@ -17,12 +17,14 @@ if __name__ == "__main__":
     # 单体技能
     def fireball_damage(user, target):
         dmg_res = roll_detail("2d6")
-        damage = dmg_res["total"] + user.intelligence
+        damage = dmg_res.total + (user.INT - 10)//2
+        target = target[0] if isinstance(target, list) else target
+        target.take_damage(damage)
         return damage
 
     fireball = Skill(
         "火球术",
-        damage_func=fireball_damage,
+        effect_func=fireball_damage,
         mp_cost=5,
         target_type="single",
         description="对单体敌人造成火焰伤害",
@@ -37,13 +39,14 @@ if __name__ == "__main__":
         results = []
         for t in targets:
             dmg_res = roll_detail("1d6")  # 示例伤害
-            damage = dmg_res["total"] + user.strength
+            damage = dmg_res.total + (user.STR - 10)//2
+            t.take_damage(damage)
             results.append((t, damage))
         return results
 
     whirlwind = Skill(
         "旋风斩",
-        damage_func=whirlwind_damage,
+        effect_func=whirlwind_damage,
         mp_cost=3,
         target_type="aoe",
         description="对所有敌人造成旋风伤害",
@@ -53,8 +56,8 @@ if __name__ == "__main__":
     # --------------------------
     # 创建玩家
     # --------------------------
-    player1 = Character("战士A", gender="男", max_hp=30, strength=5, agility=3, intelligence=1)
-    player2 = Character("法师B", gender="女", max_hp=30, strength=2, agility=3, intelligence=5)
+    player1 = EntityFactory.create_character("战士")
+    player2 = EntityFactory.create_character("法师")
 
     # 给玩家装备武器
     sword = Weapon("铁剑", attack_bonus=2, damage_dice="1d6")
@@ -70,8 +73,8 @@ if __name__ == "__main__":
     player2.add_item(hp_potion_small)
 
     # 技能加入玩家
-    player1.add_skill(whirlwind)
-    player2.add_skill(fireball)
+    player1.learn_skill(whirlwind)
+    player2.learn_skill(fireball)
 
     p1info = player1.get_info()
     p2info = player2.get_info()
@@ -82,8 +85,8 @@ if __name__ == "__main__":
     # --------------------------
     # 创建敌人
     # --------------------------
-    monster1 = Monster("哥布林A", level=1, max_hp=20, strength=3, agility=10, intelligence=1, exp_reward=50)
-    monster2 = Monster("哥布林B", level=1, max_hp=15, strength=2, agility=10, intelligence=1, exp_reward=50)
+    monster1 = EntityFactory.create_monster("哥布林")
+    monster2 = EntityFactory.create_monster("兽人")
 
     # 敌人掉落
     monster1.loot_table = [(hp_potion_small, 1.0)]

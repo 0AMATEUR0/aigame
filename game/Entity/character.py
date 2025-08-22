@@ -1,8 +1,6 @@
-from core.Item.item import EquipmentSlot, Equipment
-from core.Inventory.inventory import Inventory
-from core.entity import Entity
-from utils.dice import roll_detail
-from typing import Optional, List, Dict
+from game.Item.item import EquipmentSlot, Equipment
+from game.Inventory.inventory import Inventory
+from game.Entity.entity import Entity
 
 # ----------------------
 # 固定经验需求表
@@ -18,65 +16,49 @@ EXP_TABLE = {
 # 玩家类
 # ======================
 class Character(Entity):
-    def __init__(self,
-                 name: str = "",
-                 gender: str = "",
-                 race: str = "",
-                 background: str = "",
-                 occupation: str = "",
-                 deputy_occupation: Optional[str] = None):
-        # 初始属性可以自定义，示例给定默认值
-        super().__init__(name, gender, race, level=1,
-                         STR=10, DEX=10, CON=10,
-                         INT=10, WIS=10, CHA=10,
-                         HP=20, MP=10, AC=10, Speed=30)
+    def __init__(self, background="", occupation="", deputy_occupation="", **kwargs):
+        super().__init__(**kwargs)
 
-        # 角色特有属性
+        # 角色特有
         self.background = background
         self.occupation = occupation
         self.deputy_occupation = deputy_occupation
 
-        # 进阶系统
+        # 成长系统
         self.experience = 0
         self.currency = 0
         self.attribute_points = 0
 
-        # TODO:装备、技能、背包占位
-        self.skills = []        # [Skill]
+        # TODO: 技能、背包
+        self.skills = []  # [Skill]
         self.inventory = Inventory()
 
+        print(f"角色已创建：{self.get_info()}")
+
     def get_info(self):
-        return {
-            "name": self.name,
-            "gender": self.gender,
-            "race": self.race,
+        info = super().get_info()
+        info.update({
             "background": self.background,
             "occupation": self.occupation,
             "deputy_occupation": self.deputy_occupation,
-            "level": self.level,
             "experience": self.experience,
-            "hp": self.HP,
-            "max_hp": self.MAX_HP,
-            "mp": self.MP,
-            "max_mp": self.MAX_MP,
-            "Strength": self.STR,
-            "Dexterity": self.DEX,
-            "Constitution": self.CON,
-            "Intelligence": self.INT,
-            "Wisdom": self.WIS,
-            "Charisma": self.CHA,
-            "AC": self.AC,
-            "Speed": self.Speed,
-            "Condition": self.Condition if self.Condition else ["正常"],
+            "currency": self.currency,
             "attribute_points": self.attribute_points,
-            # TODO: 装备、技能、背包信息
-            "Item": {slot: item.name if item else None for slot, item in self.equipment.items()},
-            "skills": [skill.get_info() for skill in self.skills],
-            "Inventory": self.inventory.get_info(),
-        }
+            "skills": [skill.name for skill in self.skills],
+            "inventory": self.inventory.list_items(),
+            "equipment": {slot.name: (item.name if item else None) for slot, item in self.equipment.items()}
+        })
+        return info
 
     def learn_skill(self, skill):
         self.skills.append(skill)
+
+    def use_skill(self, skill, targets):
+        if skill in self.skills:
+            return skill.use(self, targets)
+        else:
+            print(f"{self.name} 没有学会技能 {skill.name}！")
+            return False
 
     # 升级逻辑
     def gain_experience(self, amount: int):

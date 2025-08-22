@@ -1,6 +1,6 @@
 import math
 import random
-from core.Item.item import Consumable
+from game.Item.item import Consumable
 
 class BattleManager:
     def __init__(self, players, enemies, mode="auto", log_callback=None):
@@ -63,7 +63,7 @@ class BattleManager:
                 # 显示敌人
                 self.log_msg("敌人列表：")
                 for i, e in enumerate(alive_enemies):
-                    self.log_msg(f"{i + 1}. {e.name} (HP {e.hp}/{e.max_hp})")
+                    self.log_msg(f"{i + 1}. {e.name} (HP {e.HP}/{e.MAX_HP})")
 
                 # 显示背包道具
                 self.log_msg("\n背包道具：")
@@ -90,8 +90,8 @@ class BattleManager:
                                 break
                             else:
                                 self.log_msg("无效编号，请重新输入。")
-                        except:
-                            self.log_msg("输入错误，请输入数字编号。")
+                        except Exception as e:
+                            self.log_msg(f"输入错误，请输入数字编号。{e}")
                     break
 
                 # ----------------------- 道具 -----------------------
@@ -114,8 +114,8 @@ class BattleManager:
                                     self.log_msg("该物品不可使用，请重新选择。")
                             else:
                                 self.log_msg("无效编号，请重新输入。")
-                        except:
-                            self.log_msg("输入错误，请输入数字编号")
+                        except Exception as e:
+                            self.log_msg(f"输入错误，请输入数字编号, {e}")
                     break
 
                 # ----------------------- 技能 -----------------------
@@ -144,29 +144,29 @@ class BattleManager:
                                 if skill.target_type == "single":
                                     while True:
                                         for j, e in enumerate(alive_enemies):
-                                            self.log_msg(f"{j + 1}. {e.name} (HP {e.hp}/{e.max_hp})")
+                                            self.log_msg(f"{j + 1}. {e.name} (HP {e.HP}/{e.MAX_HP})")
                                         try:
                                             target_idx = int(input("选择技能目标编号: ")) - 1
                                             if 0 <= target_idx < len(alive_enemies):
                                                 target = alive_enemies[target_idx]
-                                                skill.use(player, target)
+                                                player.use_skill(skill, target)
                                                 action_done = True
                                                 break
                                             else:
                                                 self.log_msg("无效目标编号")
-                                        except:
-                                            self.log_msg("输入错误，请输入数字编号")
+                                        except Exception as e:
+                                            self.log_msg(f"输入错误，请输入数字编号, {e}")
                                     break  # 技能成功释放，结束回合
 
                                 # ----------------- 群体技能 -----------------
                                 else:
-                                    skill.use(player, alive_enemies)
+                                    player.use_skill(skill, alive_enemies)
                                     action_done = True
                                     break  # 技能成功释放，结束回合
                             else:
                                 self.log_msg("无效技能编号")
-                        except:
-                            self.log_msg("输入错误，请输入数字编号")
+                        except Exception as e:
+                            self.log_msg(f"输入错误，请输入数字编号, {e}")
                     # 这里不要 break，让动作选择循环重新开始
 
                 # ----------------------- 逃跑 -----------------------
@@ -211,6 +211,6 @@ class BattleManager:
     def print_status(self):
         self.log_msg("\n当前状态：")
         for p in self.players:
-            self.log_msg(f"玩家 {p.name}: {p.hp}/{p.max_hp} HP, {p.mp}/{p.max_mp} MP")
+            self.log_msg(f"玩家 {p.name}: {p.HP}/{p.MAX_HP} HP, {p.MP}/{p.MAX_MP} MP")
         for e in self.enemies:
-            self.log_msg(f"敌人 {e.name}: {e.hp}/{e.max_hp} HP")
+            self.log_msg(f"敌人 {e.name}: {e.HP}/{e.MAX_HP} HP")
