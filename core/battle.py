@@ -42,6 +42,7 @@ class BattleManager:
     # ------------------
     # 玩家回合
     # ------------------
+    # ------------------ 玩家回合 ------------------
     def player_turn(self):
         escaped_players = []
         for player in self.all_alive(self.players):
@@ -55,7 +56,8 @@ class BattleManager:
                 continue
 
             # 手动回合
-            while True:
+            action_done = False
+            while not action_done:
                 self.log_msg(f"\n{player.name} 的回合！")
 
                 # 显示敌人
@@ -65,10 +67,7 @@ class BattleManager:
 
                 # 显示背包道具
                 self.log_msg("\n背包道具：")
-                items_list = []
-                for name, items in player.inventory.items():
-                    for item in items:
-                        items_list.append(item)
+                items_list = player.inventory.list_items()
                 if items_list:
                     for j, item in enumerate(items_list):
                         self.log_msg(f"{j + 1}. {item.name}")
@@ -108,10 +107,8 @@ class BattleManager:
                                 item = items_list[idx]
                                 if isinstance(item, Consumable):
                                     item.use(player)
-                                    # 从背包删除
-                                    player.inventory[item.name].remove(item)
-                                    if not player.inventory[item.name]:
-                                        del player.inventory[item.name]
+                                    player.inventory.remove(item.name, 1)
+                                    self.log_msg(f"{player.name} 使用了 {item.name}")
                                     break
                                 else:
                                     self.log_msg("该物品不可使用，请重新选择。")
@@ -125,18 +122,25 @@ class BattleManager:
                 elif choice == "3":
                     if not player.skills:
                         self.log_msg("没有可用技能！")
-                        continue
+                        continue  # 回到动作选择
+
                     while True:
                         self.log_msg("技能列表：")
                         for i, sk in enumerate(player.skills):
                             uses_left = sk.remaining_uses if not math.isinf(sk.remaining_uses) else "∞"
                             self.log_msg(f"{i + 1}. {sk.name} - {sk.description} (剩余次数 {uses_left})")
+
                         try:
                             idx = int(input("选择技能编号: ")) - 1
                             if 0 <= idx < len(player.skills):
                                 skill = player.skills[idx]
 
-                                # 单体技能
+                                # 🚨 如果次数为 0，则提示并重新选择动作
+                                if skill.remaining_uses == 0:
+                                    self.log_msg(f"{player.name} 尝试使用 {skill.name}，但是已经没有使用次数了！")
+                                    break  # 跳出技能选择，返回动作菜单（不结束回合）
+
+                                # ----------------- 单体技能 -----------------
                                 if skill.target_type == "single":
                                     while True:
                                         for j, e in enumerate(alive_enemies):
@@ -146,22 +150,24 @@ class BattleManager:
                                             if 0 <= target_idx < len(alive_enemies):
                                                 target = alive_enemies[target_idx]
                                                 skill.use(player, target)
+                                                action_done = True
                                                 break
                                             else:
                                                 self.log_msg("无效目标编号")
                                         except:
                                             self.log_msg("输入错误，请输入数字编号")
-                                    break
+                                    break  # 技能成功释放，结束回合
 
-                                # 群体技能
+                                # ----------------- 群体技能 -----------------
                                 else:
                                     skill.use(player, alive_enemies)
-                                    break
+                                    action_done = True
+                                    break  # 技能成功释放，结束回合
                             else:
                                 self.log_msg("无效技能编号")
                         except:
                             self.log_msg("输入错误，请输入数字编号")
-                    break
+                    # 这里不要 break，让动作选择循环重新开始
 
                 # ----------------------- 逃跑 -----------------------
                 elif choice == "4":

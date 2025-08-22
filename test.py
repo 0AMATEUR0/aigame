@@ -2,7 +2,7 @@ from core.Skill.skill import Skill
 from core.battle import BattleManager
 from core.character import Character, Monster
 from core.equipment.Item import Weapon, Armor, HPPotion
-from utils.dice import roll, roll_detail
+from utils.dice import roll_detail
 
 if __name__ == "__main__":
     # --------------------------
@@ -53,12 +53,14 @@ if __name__ == "__main__":
     # --------------------------
     # 创建玩家
     # --------------------------
-    player1 = Character("战士A", gender="男", strength=5, agility=3, intelligence=1)
-    player2 = Character("法师B", gender="女", strength=2, agility=3, intelligence=5)
+    player1 = Character("战士A", gender="男", max_hp=30, strength=5, agility=3, intelligence=1)
+    player2 = Character("法师B", gender="女", max_hp=30, strength=2, agility=3, intelligence=5)
 
     # 给玩家装备武器
     sword = Weapon("铁剑", attack_bonus=2, damage_dice="1d6")
     staff = Weapon("法杖", attack_bonus=1, damage_dice="1d4")
+    player1.add_item(sword)
+    player2.add_item(staff)
     player1.equip(sword)
     player2.equip(staff)
 
@@ -71,11 +73,17 @@ if __name__ == "__main__":
     player1.add_skill(whirlwind)
     player2.add_skill(fireball)
 
+    p1info = player1.get_info()
+    p2info = player2.get_info()
+
+    print(f"玩家1信息: {p1info}")
+    print(f"玩家2信息: {p2info}")
+
     # --------------------------
     # 创建敌人
     # --------------------------
-    monster1 = Monster("哥布林A", level=1, max_hp=20, strength=3, agility=20, intelligence=1, exp_reward=50)
-    monster2 = Monster("哥布林B", level=1, max_hp=15, strength=2, agility=10, intelligence=1, exp_reward=40)
+    monster1 = Monster("哥布林A", level=1, max_hp=20, strength=3, agility=10, intelligence=1, exp_reward=50)
+    monster2 = Monster("哥布林B", level=1, max_hp=15, strength=2, agility=10, intelligence=1, exp_reward=50)
 
     # 敌人掉落
     monster1.loot_table = [(hp_potion_small, 1.0)]

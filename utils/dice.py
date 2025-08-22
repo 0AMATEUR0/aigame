@@ -68,11 +68,6 @@ def roll_detail(dice: str, crit: bool = False, rng=random.randint) -> Dict:
         "breakdown": breakdown,
     }
 
-def roll(dice: str, crit: bool = False, rng=random.randint) -> int:
-    """
-    兼容旧接口：仅返回总点数。
-    """
-    return roll_detail(dice, crit=crit, rng=rng)["total"]
 
 
 if __name__ == "__main__":
