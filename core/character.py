@@ -1,6 +1,7 @@
 import random
 from core.inventory.inventory import Inventory
 from utils.dice import roll_detail
+from typing import Optional, List, Dict
 
 # ----------------------
 # 固定经验需求表
@@ -14,38 +15,58 @@ EXP_TABLE = {
 # 公共实体类
 # ======================
 class Entity:
-    def __init__(self, name, level=1, max_hp=10, hp=None, max_mp=10, mp=None, strength=0, agility=0, intelligence=0, equipment=None):
+    def __init__(self, name: str, gender:str, race: str, level: int,
+                 STR: int, DEX: int, CON: int,
+                 INT: int, WIS: int, CHA: int,
+                 HP: int, MP: int, AC: int, Speed: int):
         self.name = name
+        self.gender = gender
+        self.race = race
         self.level = level
-        self.max_hp = max_hp
-        self.hp = hp or max_hp
-        self.max_mp = max_mp
-        self.mp = mp if mp is not None else max_mp
-        self.strength = strength
-        self.agility = agility
-        self.intelligence = intelligence
-        self.equipment = equipment or {"weapon": None, "armor": None}
+
+        # 六维属性
+        self.STR = STR
+        self.DEX = DEX
+        self.CON = CON
+        self.INT = INT
+        self.WIS = WIS
+        self.CHA = CHA
+
+        # 战斗属性
+        self.MAX_HP = HP
+        self.HP = HP
+        self.MAX_MP = MP
+        self.MP = MP
+        self.AC = AC
+        self.Speed = Speed
+        self.Condition: List[str] = []  # 状态（中毒、眩晕等）
 
     def get_info(self):
         return {
             "name": self.name,
+            "race": self.race,
             "level": self.level,
-            "hp": self.hp,
-            "max_hp": self.max_hp,
-            "mp": self.mp,
-            "max_mp": self.max_mp,
-            "strength": self.strength,
-            "agility": self.agility,
-            "intelligence": self.intelligence,
-            "equipment": {slot: item.name if item else None for slot, item in self.equipment.items()}
+            "hp": self.HP,
+            "max_hp": self.MAX_HP,
+            "mp": self.MP,
+            "max_mp": self.MAX_MP,
+            "Strength": self.STR,
+            "Dexterity": self.DEX,
+            "Constitution": self.CON,
+            "Intelligence": self.INT,
+            "Wisdom": self.WIS,
+            "Charisma": self.CHA,
+            "AC": self.AC,
+            "Speed": self.Speed,
+            "Condition": self.Condition if self.Condition else ["正常"],
         }
 
-    # 战斗方法
+    # TODO: 待修改
     def attack(self, target):
         """普通攻击，掷 d20 决定命中，伤害用骰子 + 力量"""
         roll_res = roll_detail("1d20")
-        natural_roll = roll_res["rolls"][0]
-        attack_roll = roll_res["total"] + self.agility  # total = d20点数
+        natural_roll = roll_res.rolls
+        attack_roll = roll_res.total + self.agility  # total = d20点数
         crit = (natural_roll == 20)  # 暴击判定
 
         target_ac = 10 + (target.agility - 10) // 2  # 基础AC
@@ -71,169 +92,132 @@ class Entity:
         else:
             print(f"❌ {self.name} 攻击未命中 {target.name}！")
 
-    def take_damage(self, amount, source=None):
-        self.hp = max(0, self.hp - amount)
-        if self.hp == 0:
-            self.on_death(source)
+    # 承受伤害
+    def take_damage(self, amount: int):
+        self.HP = max(self.HP - amount, 0)
 
-    def heal(self, amount):
-        self.hp = min(self.max_hp, self.hp + amount)
+    # 治疗
+    def heal(self, amount: int):
+        self.HP = min(self.HP + amount, self.MAX_HP)
 
-    def is_alive(self):
-        return self.hp > 0
-
-    def on_death(self, killer=None):
-        """可以被子类重写"""
-        print(f"{self.name} 已经死亡！")
+    # 治疗
+    def is_alive(self) -> bool:
+        return self.HP > 0
 
 # ======================
 # 玩家类
 # ======================
 class Character(Entity):
-    def __init__(self, name= "", gender = "?", career="footman", background="", level=1,
-                 experience=0, attribute_points=0,
-                 max_hp=10, hp=None, max_mp=10, mp=10, strength=0, agility=0, intelligence=0,
-                 inventory=None, skills=None):
-        super().__init__(name, level, max_hp, hp, max_mp, mp, strength, agility, intelligence)
-        self.gender = gender
-        self.career = career
+    def __init__(self, name: str , gender: str, race: str, background: str, occupation: str, deputy_occupation: Optional[str] = None):
+        # 初始属性可以自定义，示例给定默认值
+        super().__init__(name, gender, race, level=1,
+                         STR=10, DEX=10, CON=10,
+                         INT=10, WIS=10, CHA=10,
+                         HP=20, MP=10, AC=10, Speed=30)
+
+        # 角色特有属性
         self.background = background
-        self.experience = experience
-        self.attribute_points = attribute_points
-        self.inventory = inventory or Inventory()
-        self.skills = skills or []
+        self.occupation = occupation
+        self.deputy_occupation = deputy_occupation
+
+        # 进阶系统
+        self.experience = 0
+        self.currency = 0
+        self.attribute_points = 0
+
+        # TODO:装备、技能、背包占位
+        self.equipment = {}     # {slot: Item}
+        self.skills = []        # [Skill]
+        self.inventory = []     # [Item]
 
     def get_info(self):
         return {
             "name": self.name,
             "gender": self.gender,
-            "career": self.career,
+            "race": self.race,
             "background": self.background,
-            "experience": self.experience,
+            "occupation": self.occupation,
+            "deputy_occupation": self.deputy_occupation,
             "level": self.level,
+            "experience": self.experience,
+            "hp": self.HP,
+            "max_hp": self.MAX_HP,
+            "mp": self.MP,
+            "max_mp": self.MAX_MP,
+            "Strength": self.STR,
+            "Dexterity": self.DEX,
+            "Constitution": self.CON,
+            "Intelligence": self.INT,
+            "Wisdom": self.WIS,
+            "Charisma": self.CHA,
+            "AC": self.AC,
+            "Speed": self.Speed,
+            "Condition": self.Condition if self.Condition else ["正常"],
             "attribute_points": self.attribute_points,
-            "hp": self.hp,
-            "max_hp": self.max_hp,
-            "mp": self.mp,
-            "max_mp": self.max_mp,
-            "strength": self.strength,
-            "agility": self.agility,
-            "intelligence": self.intelligence,
+            # TODO: 装备、技能、背包信息
             "equipment": {slot: item.name if item else None for slot, item in self.equipment.items()},
-            "inventory": self.inventory.get_info(),
             "skills": [skill.get_info() for skill in self.skills],
+            "inventory": self.inventory.get_info(),
         }
 
-    def add_skill(self, skill):
+    def learn_skill(self, skill):
         self.skills.append(skill)
-        print(f"{self.name} 学会了技能：{skill.name}")
 
     # 升级逻辑
-    def exp_to_next_level(self):
-        return EXP_TABLE.get(self.level, 0)
-
-    def gain_experience(self, exp):
-        self.experience += exp
-        print(f"{self.name} 获得 {exp} 经验！（当前 {self.experience} EXP）")
-        while self.level < 12 and self.experience >= self.exp_to_next_level():
-            self.experience -= self.exp_to_next_level()
+    def gain_experience(self, amount: int):
+        self.experience += amount
+        while EXP_TABLE.get(self.level) and self.experience >= EXP_TABLE[self.level]:
             self.level_up()
 
     def level_up(self):
         self.level += 1
-        self.attribute_points += 2
-        print(f"{self.name} 升到了 {self.level} 级！获得 2 点属性点。")
+        self.attribute_points += 2  # 示例：每级送 2 点属性
+        self.MAX_HP += 5
+        self.HP = self.MAX_HP
+        print(f"{self.name} 升级到 {self.level} 级！")
 
-    def allocate_points(self, attr, amount):
-        if amount > self.attribute_points:
-            print(f"点数不足！当前可用点数：{self.attribute_points}")
-            return
-        if attr == "strength":
-            self.strength += amount
-        elif attr == "agility":
-            self.agility += amount
-        elif attr == "intelligence":
-            self.intelligence += amount
+    def allocate_points(self, attr: str, points: int):
+        if self.attribute_points >= points:
+            setattr(self, attr, getattr(self, attr) + points)
+            self.attribute_points -= points
         else:
-            print("无效属性！只能是 strength / agility / intelligence")
-            return
-        self.attribute_points -= amount
-        print(f"{self.name} 分配了 {amount} 点到 {attr}，当前属性: 力量{self.strength}, 敏捷{self.agility}, 智力{self.intelligence}，剩余属性点 {self.attribute_points}。")
-
+            print("点数不足！")
     # 背包与物品
     def add_item(self, item):
-        self.inventory.add(item)
+        self.inventory.append(item)
 
-    def use_item(self, item_name):
-        self.inventory.use(item_name, self)
+    def use_item(self, item):
+        if item in self.inventory:
+            # TODO:这里调用 item.use(self) 之类的方法
+            print(f"{self.name} 使用了 {item}")
+            self.inventory.remove(item)
 
-    def list_inventory(self):
-        self.inventory.list_items()
+    # TODO:装备/卸下
+    def equip(self, slot: str, equipment):
+        equipment.equip_to(self)
 
-    # 装备
-    def equip(self, item):
-        if not hasattr(item, "slot"):
-            print(f"{item.name} 不是可装备物品！")
-            return
-        slot = item.slot
-        if slot not in self.equipment:
-            print(f"无效装备槽位：{slot}")
-            return
-
-        # 从背包移除
-        removed = self.inventory.remove(item.name, 1)
-        if not removed:
-            print(f"{item.name} 不在背包中，无法装备！")
-            return
-
-        # 卸下旧装备
-        if self.equipment[slot]:
-            old_item = self.equipment[slot]
-            self.inventory.add(old_item)
-            print(f"{self.name} 卸下了 {old_item.name}。")
-
-        # 装备新物品
-        self.equipment[slot] = item
-        print(f"{self.name} 装备了 {item.name} 到 {slot}。")
-
-    def unequip(self, slot):
-        """卸下装备，回到背包"""
-        if slot in self.equipment and self.equipment[slot]:
-            item = self.equipment[slot]
-            self.equipment[slot] = None
-            self.inventory.add(item)
-            print(f"{self.name} 卸下了 {item.name}。")
-        else:
-            print(f"{self.name} 没有装备在 {slot} 上。")
+    def unequip(self, slot: str):
+        if slot in self.equipment:
+            self.equipment[slot].unequip_from(self)
 
 
 # ======================
 # 怪物类
 # ======================
 class Monster(Entity):
-    def __init__(self, name, level=1, max_hp=10, hp=None,
-                 strength=0, agility=0, intelligence=0,
-                 exp_reward=50, loot_table=None):
-        super().__init__(name, level, max_hp, hp, max_mp=0, mp=0,
-                         strength=strength, agility=agility, intelligence=intelligence)
+    def __init__(self, name: str, race: str, level: int, exp_reward: int, item_reward: Optional[List[str]] = None):
+        # 默认怪物属性比角色低一点
+        super().__init__(name, race, level,
+                         STR=8 + level, DEX=8 + level, CON=8 + level,
+                         INT=5, WIS=5, CHA=5,
+                         HP=15 + level * 5, MP=0,
+                         AC=8 + level, Speed=20)
         self.exp_reward = exp_reward
-        self.loot_table = loot_table or []
+        self.item_reward = item_reward or []
 
-    def on_death(self, killer=None):
-        super().on_death(killer)
-        if killer and isinstance(killer, Character) and self.exp_reward > 0:
-            print(f"{killer.name} 击杀了 {self.name}，获得 {self.exp_reward} 经验！")
-            killer.gain_experience(self.exp_reward)
-
-        # ✅ 用 Inventory 来存放掉落
-        if self.loot_table and killer:
-            dropped_items = []
-            for item, chance in self.loot_table:
-                chance = max(0.0, min(chance, 1.0))  # 限制在 0~1
-                roll_val = random.randint(1, 100)
-                if chance >= 1.0 or roll_val <= chance * 100:
-                    dropped_items.append(item)
-
-            for it in dropped_items:
-                killer.add_item(it)
-                print(f"{self.name} 掉落了 {it.name}！")
+    # 怪物掉落
+    def drop_loot(self):
+        return {
+            "exp": self.exp_reward,
+            "items": self.item_reward
+        }

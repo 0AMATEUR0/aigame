@@ -172,7 +172,7 @@ class Equipment(BaseItem):
         self.durability = min(self.max_durability, self.durability + amount)
         print(f"🔧 {self.name} 被修复了 {amount} 点耐久度")
 
-    def get_full_description(self) -> str:
+    def info(self) -> str:
         desc = super().get_full_description()
         desc += f"\n装备槽: {self.slot.value}"
         desc += f"\n等级要求: {self.level_requirement}"
