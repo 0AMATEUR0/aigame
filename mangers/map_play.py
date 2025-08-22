@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # ---------------- DnD 模块导入 ----------------
 from core.character import Character
-from core.battle import start_battle    # 确保 core/battle.py 文件存在
+from core.battle import start_battle
 from core.item import create_preset_item   # 装备模块
 # from core.dice import roll_check      # 检定模块，可选
 
@@ -106,6 +106,7 @@ def handle_event(event_info, player):
     elif event_type == "掉落":
         item_type = extra.get("item_type", random.choice(["药水","武器","护甲"]))
         rarity = extra.get("rarity", random.choice(["普通","稀有","史诗"]))
+        # 这里仍使用 create_preset_item，如果你已迁移到 JSON 工厂，请替换为相应的获取函数
         item = create_preset_item(item_type)
         item.rarity = rarity
         print(f"[掉落事件] 你获得 {rarity} 道具：{item.name}")
@@ -169,9 +170,24 @@ def explore_map(map_data, player):
 
 # ---------------- 主程序 ----------------
 if __name__=="__main__":
-    prompt = input("请输入地图生成提示词: ").strip() or "无疆传说地图"
-    width = int(input("请输入地图宽度: ") or 5)
-    height = int(input("请输入地图高度: ") or 5)
+    # 防御性处理 input，避免静态检查器/运行时出错
+    try:
+        prompt_raw = input("请输入地图生成提示词: ") or ""
+    except Exception:
+        prompt_raw = ""
+    prompt = prompt_raw.strip() or "无疆传说地图"
+
+    try:
+        width_raw = (input("请输入地图宽度: ") or "").strip()
+        width = int(width_raw) if width_raw.isdigit() else 5
+    except Exception:
+        width = 5
+
+    try:
+        height_raw = (input("请输入地图高度: ") or "").strip()
+        height = int(height_raw) if height_raw.isdigit() else 5
+    except Exception:
+        height = 5
 
     map_data = ai_generate_map(prompt, width, height)
     save_map_json(map_data)
