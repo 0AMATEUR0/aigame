@@ -147,6 +147,34 @@ class Equipment(BaseItem):
             return False, f"需要等级 {self.level_requirement}"
         return True, "可以装备"
 
+    def equip_to(self, character) -> bool:
+        """装备到角色"""
+        can_equip, msg = self.can_equip(character)
+        if not can_equip:
+            print(f"❌ {character.name} 无法装备 {self.name}：{msg}")
+            return False
+
+        current_eq = character.equipment.get(self.slot)
+        if current_eq:
+            print(f"⚠️ {character.name} 已经装备了 {current_eq.name} 在 {self.slot.value} 槽，先卸下它。")
+            current_eq.unequip_from(character)
+
+        character.equipment[self.slot] = self
+        self.apply_effects(character)
+        print(f"✅ {character.name} 装备了 {self.name} 到 {self.slot.value} 槽")
+        return True
+
+    def unequip_from(self, character) -> bool:
+        """从角色卸下装备"""
+        for slot, eq in character.equipment.items():
+            if eq == self:
+                self.remove_effects(character)
+                character.equipment[slot] = None
+                print(f"✅ {character.name} 卸下了 {self.name} 从 {slot.value} 槽")
+                return True
+        print(f"❌ {self.name} 未装备在 {character.name} 上")
+        return False
+
     def apply_effects(self, character):
         """应用装备效果到角色"""
         for effect_name, effect_value in self.effects.items():
@@ -205,8 +233,8 @@ class Weapon(Equipment):
     def get_damage(self, strength: int, crit: bool = False) -> int:
         """计算伤害"""
         dmg_res = roll_detail(self.damage_dice, crit=crit)
-        damage = dmg_res["total"] + strength
-        print(f"{self.name} 伤害: {dmg_res['rolls']} + 力量({strength}) → {damage}")
+        damage = dmg_res.total + strength
+        print(f"{self.name} 伤害: {dmg_res.rolls} + 力量({strength}) → {damage}")
         return damage
 
     def get_full_description(self) -> str:
@@ -409,7 +437,7 @@ PRESET_ITEMS = {
         "value": 15,
         "rarity": "普通",
         "level_requirement": 1,
-        "effects": {"strength": 1}
+        "effects": {"STR": 1}
     },
 
     "魔法法杖": {
@@ -423,7 +451,7 @@ PRESET_ITEMS = {
         "value": 50,
         "rarity": "优秀",
         "level_requirement": 3,
-        "effects": {"intelligence": 2}
+        "effects": {"INT": 2}
     },
 
     # 护甲
@@ -436,7 +464,7 @@ PRESET_ITEMS = {
         "value": 10,
         "rarity": "普通",
         "level_requirement": 1,
-        "effects": {"agility": 1}
+        "effects": {"DEX": 1}
     },
 
     "铁甲": {
@@ -449,7 +477,7 @@ PRESET_ITEMS = {
         "value": 30,
         "rarity": "普通",
         "level_requirement": 2,
-        "effects": {"strength": 1}
+        "effects": {"STR": 1}
     },
 
     # 药水

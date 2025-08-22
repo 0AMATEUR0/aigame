@@ -1,7 +1,7 @@
 from core.Skill.skill import Skill
 from core.battle import BattleManager
 from core.character import Character, Monster
-from core.equipment.Item import Weapon, Armor, HPPotion
+from core.Item.item import Weapon, Armor, HPPotion
 from utils.dice import roll_detail
 
 if __name__ == "__main__":

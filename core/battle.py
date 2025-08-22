@@ -1,6 +1,6 @@
 import math
 import random
-from core.equipment.Item import Consumable
+from core.Item.item import Consumable
 
 class BattleManager:
     def __init__(self, players, enemies, mode="auto", log_callback=None):

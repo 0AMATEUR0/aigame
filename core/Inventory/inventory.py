@@ -6,6 +6,12 @@ class Inventory:
     def add(self, item):
         if item.name not in self.items:
             self.items[item.name] = []
+        if self.capacity and sum(len(v) for v in self.items.values()) >= self.capacity:
+            print("背包已满，无法添加物品！")
+            return
+        if item.max_stack and len(self.items[item.name]) >= item.max_stack:
+            print(f"{item.name} 达到最大堆叠数量，无法继续添加！")
+            return
         self.items[item.name].append(item)
         print(f"获得物品：{item.name}")
 
