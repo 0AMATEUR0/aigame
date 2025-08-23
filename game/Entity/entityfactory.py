@@ -22,9 +22,9 @@ class EntityFactory:
     # 怪物模板
     MONSTER_TEMPLATES: Dict[str, Dict[str, Any]] = {
         "哥布林": {"name": "哥布林", "STR": 8, "DEX": 14, "CON": 10, "INT": 6, "WIS": 8, "CHA": 6,
-                  "HP": 30, "MP": 0, "AC": 12, "Speed": 30, "exp_reward": 50, "item_reward": []},
+                  "HP": 10, "MP": 0, "AC": 12, "Speed": 30, "exp_reward": 50, "currency_reward": 100, "item_reward": []},
         "兽人": {"name": "兽人", "STR": 16, "DEX": 10, "CON": 14, "INT": 8, "WIS": 10, "CHA": 8,
-                 "HP": 35, "MP": 0, "AC": 13, "Speed": 30, "exp_reward": 120, "item_reward": []},
+                 "HP": 20, "MP": 0, "AC": 13, "Speed": 30, "exp_reward": 120, "currency_reward": 200, "item_reward": []},
     }
 
     @classmethod

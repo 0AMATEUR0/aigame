@@ -7,8 +7,10 @@ from game.Team.team import Team
 
 
 class Event:
-    def __init__(self, description: str = ""):
+    def __init__(self, description: str = "", repeatable=False):
         self.description = description
+        self.repeatable = repeatable
+        self.triggered = False
 
     def trigger(self, team: Team):
         print(f"事件触发: {self.description}")
@@ -20,7 +22,10 @@ class BattleEvent(Event):
         self.monsters = monsters
 
     def trigger(self, team: Team):
-        # TODO:这里可以进入战斗逻辑
+        if self.triggered:
+            print("⚠️ 战斗事件已解决，无法再次触发。")
+            return
+
         battle = BattleManager(
             players=team.members,
             enemies=self.monsters,
@@ -31,19 +36,31 @@ class BattleEvent(Event):
         if not team.is_alive():
             print("💀 游戏结束")
         else:
-            reward = battle.reward
-            print(f"战斗奖励: {reward}")
+            reward = battle.reward or {}
+            print(f"🎉 战斗胜利！奖励: {reward}")
+
             # 取得经验
-            team.gain_experience(battle.reward.get("exp"))
+            exp = reward.get("exp", 0)
+            if exp > 0:
+                team.gain_experience(exp)
+
             # 取得货币
-            team.gain_currency(battle.reward.get("currency"))
-            # TODO:掉落物选择
-            for item in reward.get("items", []):
+            money = reward.get("currency", 0)
+            if money > 0:
+                team.gain_currency(money)
+
+            # 掉落物品
+            items = reward.get("items", [])
+            if not isinstance(items, list):
+                items = []
+            items = [i for i in items if i]  # ✅ 清理掉 [] 或 None
+
+            for item in items:
                 choice = input(f"是否拾取 {item.name}? (y/n): ")
                 if choice.lower() == "y":
                     team.gain_item(item)
 
-            # TODO:掉落物分配
+            # 进入分配逻辑
             to_distribute = team.inventory.items[:]  # 复制内部列表
             for item in to_distribute:
                 allocated = False
@@ -73,6 +90,8 @@ class BattleEvent(Event):
                             print("无效编号，请重新输入。")
                     else:
                         print("输入无效，请输入数字或 s。")
+
+        self.triggered = True
 
 
 class StoryEvent(Event):

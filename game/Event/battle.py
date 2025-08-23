@@ -33,12 +33,13 @@ class BattleManager:
         total_items = []
         for enemy in self.enemies:
             if not enemy.is_alive() and hasattr(enemy, "drop_loot"):
-                loot = enemy.drop_loot
-                total_exp += getattr(loot, "exp", 0)
-                total_currency += getattr(loot, "currency", 0)
-                item = getattr(loot, "item", None)
+                loot = enemy.drop_loot()
+                print(loot)
+                total_exp += loot["exp"]
+                total_currency += loot["currency"]
+                item = loot["items"]
                 if item is not None:
-                    total_items.append(item)
+                    total_items.extend(item)
         self.reward.update({
             "exp": total_exp,
             "currency": total_currency,
