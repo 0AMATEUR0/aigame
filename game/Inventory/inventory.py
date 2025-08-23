@@ -88,7 +88,7 @@ class Inventory:
     # ----------------- 查询 -----------------
     def list_items(self):
         """列出所有物品"""
-        return [(slot["item"].name, slot["quantity"]) for slot in self.items]
+        return [(slot["item"], slot["quantity"]) for slot in self.items] # 形式为[(item.name, quantity)]
 
     def find(self, item_name: str):
         """按名称查找物品（可能有多堆）"""

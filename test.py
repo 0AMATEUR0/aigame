@@ -16,6 +16,7 @@ if __name__ == "__main__":
     # --------------------------
     # 单体技能
     def fireball_damage(user, target):
+        # TODO:优劣势检定
         dmg_res = roll_detail("2d6")
         damage = dmg_res.total + (user.INT - 10)//2
         target = target[0] if isinstance(target, list) else target
@@ -38,6 +39,7 @@ if __name__ == "__main__":
             targets = [targets]
         results = []
         for t in targets:
+            # TODO:优劣势检定
             dmg_res = roll_detail("1d6")  # 示例伤害
             damage = dmg_res.total + (user.STR - 10)//2
             t.take_damage(damage)
@@ -74,8 +76,8 @@ if __name__ == "__main__":
     player1.learn_skill(whirlwind)
     player2.learn_skill(fireball)
 
-    p1info = player1.get_info()
-    p2info = player2.get_info()
+    p1info = player1.info()
+    p2info = player2.info()
 
     print(f"玩家1信息: {p1info}")
     print(f"玩家2信息: {p2info}")

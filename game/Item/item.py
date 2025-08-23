@@ -232,6 +232,7 @@ class Weapon(Equipment):
 
     def get_damage(self, strength: int, crit: bool = False) -> int:
         """计算伤害"""
+        # TODO:优劣势检定
         dmg_res = roll_detail(self.damage_dice, crit=crit)
         damage = dmg_res.total + (strength - 10)//2
         print(f"{self.name} 伤害: {dmg_res.rolls} + 力量({(strength - 10)//2}) → {damage}")

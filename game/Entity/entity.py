@@ -71,6 +71,7 @@ class Entity:
     # TODO: 待修改
     def attack(self, target):
         """普通攻击，掷 d20 决定命中，伤害用骰子 + 力量"""
+        # TODO:优劣势检定
         roll_res = roll_detail("1d20")
         natural_roll = roll_res.rolls[0]
         attack_roll = roll_res.total + self.DEX  # total = d20点数
@@ -88,6 +89,7 @@ class Entity:
                 damage = self.equipment.get(EquipmentSlot.WEAPON).get_damage(self.STR, crit=crit)
 
             else:
+                # TODO:优劣势检定
                 dmg_res = roll_detail("1d4", crit=crit)
                 damage = dmg_res.total + (self.STR - 10)//2
                 print(f"{self.name} 徒手攻击伤害: {dmg_res.rolls} + 力量({(self.STR - 10)//2}) → {damage}")

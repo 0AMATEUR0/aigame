@@ -1,6 +1,8 @@
 import math
 import random
 from game.Item.item import Consumable
+from utils.dice import roll_detail
+
 
 class BattleManager:
     def __init__(self, players, enemies, mode="auto", log_callback=None):
@@ -28,6 +30,7 @@ class BattleManager:
         self.log_msg(f"\n战斗开始！玩家 {', '.join(p.name for p in self.players)} VS 敌人 {', '.join(e.name for e in self.enemies)}")
 
         while self.all_alive(self.players) and self.all_alive(self.enemies):
+            # TODO:切换自动/手动模式
             self.log_msg(f"\n--- 回合 {self.round_num} ---")
             self.player_turn()
             self.enemy_turn()
@@ -64,12 +67,14 @@ class BattleManager:
                 for i, e in enumerate(alive_enemies):
                     self.log_msg(f"{i + 1}. {e.name} (HP {e.HP}/{e.MAX_HP})")
 
+
                 # 显示背包道具
                 self.log_msg("\n背包道具：")
-                items_list = player.inventory.list_items()
+                items_list = player.inventory.list_items() # [(item,quantity)]
                 if items_list:
-                    for j, item in enumerate(items_list):
-                        self.log_msg(f"{j + 1}. {item.name}")
+                    for j, items in enumerate(items_list):
+                        item, quantity = items
+                        self.log_msg(f"{j + 1}. {item.name} * {quantity}")
                 else:
                     self.log_msg("无可用道具")
 
@@ -95,7 +100,7 @@ class BattleManager:
 
                 # ----------------------- 道具 -----------------------
                 elif choice == "2":
-                    if not items_list:
+                    if not items_list: # [(item,quantity)]
                         self.log_msg("背包为空，没有可用道具！")
                         continue
                     while True:
@@ -103,10 +108,9 @@ class BattleManager:
                         try:
                             idx = int(item_choice) - 1
                             if 0 <= idx < len(items_list):
-                                item = items_list[idx]
+                                item = items_list[idx][0]
                                 if isinstance(item, Consumable):
-                                    item.use(player)
-                                    player.inventory.remove(item.name, 1)
+                                    player.use_item(item)
                                     self.log_msg(f"{player.name} 使用了 {item.name}")
                                     break
                                 else:
@@ -174,11 +178,13 @@ class BattleManager:
                     if not alive_enemies:
                         self.log_msg("没有敌人可以逃跑！")
                         continue
-                    enemy_agility_avg = sum(e.agility for e in alive_enemies) // len(alive_enemies)
-                    escape_roll = random.randint(1, 20) + player.agility
+                    # TODO:优劣势检定
+                    enemy_DEX_avg = sum(e.DEX for e in alive_enemies) // len(alive_enemies)
+                    dice_result = roll_detail("1d20")
+                    escape_roll = dice_result.total + (player.DEX - 10)//2
                     self.log_msg(
-                        f"{player.name} 尝试逃跑：d20 + 敏捷({player.agility}) = {escape_roll} vs 敌方敏捷平均 {enemy_agility_avg}")
-                    if escape_roll >= enemy_agility_avg:
+                        f"{player.name} 尝试逃跑：{dice_result.total}{("大成功") if dice_result.total == 20 else ""} + 敏捷修正({(player.DEX - 10)//2}) = {escape_roll} vs 敌方敏捷平均 {enemy_DEX_avg}")
+                    if escape_roll >= enemy_DEX_avg or dice_result.total == 20:
                         self.log_msg(f"🏃 {player.name} 成功逃脱战斗！")
                         escaped_players.append(player)
                     else:
