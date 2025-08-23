@@ -305,7 +305,7 @@ class HPPotion(Consumable):
         def heal_effect(character, item):
             character.heal(heal_amount)
             print(
-                f"💚 {character.name} 使用了 {item.name}，恢复了 {heal_amount} 点生命！（{character.hp}/{character.max_hp} HP）")
+                f"💚 {character.name} 使用了 {item.name}，恢复了 {heal_amount} 点生命！（{character.HP}/{character.MAX_HP} HP）")
             return True
 
         super().__init__(name, use_effect=heal_effect, **kwargs)
@@ -325,9 +325,9 @@ class MPPotion(Consumable):
                  mana_amount: int = 10,
                  **kwargs):
         def mana_effect(character, item):
-            character.mp = min(character.max_mp, character.mp + mana_amount)
+            character.mp = min(character.MAX_MP, character.MP + mana_amount)
             print(
-                f"🔮 {character.name} 使用了 {item.name}，恢复了 {mana_amount} 点魔法！（{character.mp}/{character.max_mp} MP）")
+                f"🔮 {character.name} 使用了 {item.name}，恢复了 {mana_amount} 点魔法！（{character.MP}/{character.MAX_MP} MP）")
             return True
 
         super().__init__(name, use_effect=mana_effect, **kwargs)
@@ -545,3 +545,47 @@ def save_items_to_json(items: Dict[str, BaseItem], file_path: str):
 
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+if __name__ == "__main__":
+    from game.Entity.entityfactory import EntityFactory
+
+    hero = EntityFactory.create_character("战士")
+    print(hero.info())
+
+    # 1. 创建预设物品
+    sword = create_preset_item("铁剑")
+    armor = create_preset_item("皮甲")
+    hp_potion = create_preset_item("小生命药水")
+    mp_potion = create_preset_item("小魔法药水")
+
+    # 2. 查看物品描述
+    print("\n📦 物品信息:")
+    print(sword.get_full_description())
+    print(armor.get_full_description())
+    print(hp_potion.get_full_description())
+    print(mp_potion.get_full_description())
+
+    # 3. 使用药水
+    print("\n💊 使用药水:")
+    success, msg = hero.add_item(hp_potion)
+    print(success, msg)
+    success, msg = hero.add_item(mp_potion)
+    print(success, msg)
+    success, msg = hero.use_item(hp_potion)
+    print(success, msg)
+    success, msg = hero.use_item(mp_potion)
+    print(success, msg)
+    print(hero.info())
+
+    # 4. 装备武器和护甲
+    print("\n🗡️ 装备武器和护甲:")
+    hero.equip(sword)
+    hero.equip(armor)
+    print(hero.info())
+
+    # 5. 卸下装备
+    print("\n🛡️ 卸下武器:")
+    hero.unequip(sword.slot)
+    hero.unequip(armor.slot)
+    print(hero.info())

@@ -62,8 +62,6 @@ if __name__ == "__main__":
     # 给玩家装备武器
     sword = Weapon("铁剑", attack_bonus=2, damage_dice="1d6")
     staff = Weapon("法杖", attack_bonus=1, damage_dice="1d4")
-    player1.add_item(sword)
-    player2.add_item(staff)
     player1.equip(sword)
     player2.equip(staff)
 
@@ -87,10 +85,6 @@ if __name__ == "__main__":
     # --------------------------
     monster1 = EntityFactory.create_monster("哥布林")
     monster2 = EntityFactory.create_monster("兽人")
-
-    # 敌人掉落
-    monster1.loot_table = [(hp_potion_small, 1.0)]
-    monster2.loot_table = [(hp_potion_large, 1.0)]
 
     # --------------------------
     # 开始战斗

@@ -20,8 +20,8 @@ class Monster(Entity):
             "items": self.item_reward
         }
 
-    def get_info(self):
-        info = super().get_info()
+    def info(self):
+        info = super().info()
         info.update({
             "exp_reward": self.exp_reward,
             "item_reward": self.item_reward

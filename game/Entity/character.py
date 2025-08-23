@@ -33,10 +33,10 @@ class Character(Entity):
         self.skills = []  # [Skill]
         self.inventory = Inventory()
 
-        print(f"角色已创建：{self.get_info()}")
+        print(f"角色已创建：{self.info()}")
 
-    def get_info(self):
-        info = super().get_info()
+    def info(self):
+        info = super().info()
         info.update({
             "background": self.background,
             "occupation": self.occupation,
@@ -90,15 +90,28 @@ class Character(Entity):
         else:
             print("点数不足！")
     # 背包与物品
-    def add_item(self, item):
-        self.inventory.add(item)
+    def add_item(self, item, quantity: int = 1):
+        success, msg = self.inventory.add(item, quantity)
+        if not success:
+            return False, msg
+        else:
+            return True, msg
 
     def use_item(self, item):
-        if item in self.inventory:
-            # TODO:这里调用 item.use(self) 之类的方法
+        found = self.inventory.find(item.name)
+        if not found:
+            return False, f"{self.name} 背包中没有 {item.name}"
+
+        success, msg = self.inventory.remove(item, 1)
+
+        if not success:
+            return False, msg
+
+        if hasattr(item, "use") and callable(item.use):
             item.use(self)
-            print(f"{self.name} 使用了 {item}")
-            self.inventory.remove(item)
+            return True, f"{self.name} 使用了 {item.name}"
+        else:
+            return False, f"{item.name} 不能使用"
 
     # TODO:装备/卸下
     def equip(self, equipment:Equipment):

@@ -48,7 +48,7 @@ class Entity:
         # TODO:装备槽位
         self.equipment = {slot: None for slot in EquipmentSlot}     # {slot: Item}
 
-    def get_info(self):
+    def info(self):
         return {
             "name": self.name,
             "race": self.race,
@@ -86,6 +86,7 @@ class Entity:
             # 伤害骰子
             if self.equipment.get(EquipmentSlot.WEAPON):
                 damage = self.equipment.get(EquipmentSlot.WEAPON).get_damage(self.STR, crit=crit)
+
             else:
                 dmg_res = roll_detail("1d4", crit=crit)
                 damage = dmg_res.total + (self.STR - 10)//2

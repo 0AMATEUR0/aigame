@@ -42,7 +42,6 @@ class BattleManager:
     # ------------------
     # 玩家回合
     # ------------------
-    # ------------------ 玩家回合 ------------------
     def player_turn(self):
         escaped_players = []
         for player in self.all_alive(self.players):
