@@ -8,6 +8,7 @@ class BattleManager:
     def __init__(self, players, enemies, mode="auto", log_callback=None):
         self.players = players
         self.enemies = enemies
+        self.reward = {}
         self.round_num = 1
         self.mode = mode  # auto / manual
         self.log_callback = log_callback  # 用于前端或界面接收日志
@@ -25,6 +26,25 @@ class BattleManager:
     def all_alive(self, units):
         return [u for u in units if u.is_alive()]
 
+    def calculate_reward(self):
+        """战斗结束时统计奖励"""
+        total_exp = 0
+        total_currency = 0
+        total_items = []
+        for enemy in self.enemies:
+            if not enemy.is_alive() and hasattr(enemy, "drop_loot"):
+                loot = enemy.drop_loot
+                total_exp += getattr(loot, "exp", 0)
+                total_currency += getattr(loot, "currency", 0)
+                item = getattr(loot, "item", None)
+                if item is not None:
+                    total_items.append(item)
+        self.reward.update({
+            "exp": total_exp,
+            "currency": total_currency,
+            "items": total_items
+        })
+
     # 战斗开始
     def start_battle(self):
         self.log_msg(f"\n战斗开始！玩家 {', '.join(p.name for p in self.players)} VS 敌人 {', '.join(e.name for e in self.enemies)}")
@@ -41,6 +61,8 @@ class BattleManager:
             self.log_msg("\n玩家胜利！")
         else:
             self.log_msg("\n敌人胜利！")
+
+        self.calculate_reward()
 
     # ------------------
     # 玩家回合

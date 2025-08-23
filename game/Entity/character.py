@@ -26,7 +26,6 @@ class Character(Entity):
 
         # 成长系统
         self.experience = 0
-        self.currency = 0
         self.attribute_points = 0
 
         # TODO: 技能、背包
@@ -42,7 +41,6 @@ class Character(Entity):
             "occupation": self.occupation,
             "deputy_occupation": self.deputy_occupation,
             "experience": self.experience,
-            "currency": self.currency,
             "attribute_points": self.attribute_points,
             "skills": [skill.name for skill in self.skills],
             "inventory": self.inventory.list_items(),
@@ -51,6 +49,7 @@ class Character(Entity):
         return info
 
     def learn_skill(self, skill):
+        print(f"✅ {skill.name} 习得了技能 {skill.name}")
         self.skills.append(skill)
 
     def use_skill(self, skill, targets):

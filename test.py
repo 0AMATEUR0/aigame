@@ -1,7 +1,10 @@
+from game.Event.event import BattleEvent
+from game.Map.map import Map, Tile
 from game.Skill.skill import Skill
-from game.battle import BattleManager
+from game.Event.battle import BattleManager
 from game.Entity.entityfactory import EntityFactory
 from game.Item.item import Weapon, HPPotion
+from game.Team.team import Team
 from utils.dice import roll_detail
 
 if __name__ == "__main__":
@@ -89,11 +92,33 @@ if __name__ == "__main__":
     monster2 = EntityFactory.create_monster("兽人")
 
     # --------------------------
-    # 开始战斗
+    # 开始探索
     # --------------------------
-    battle = BattleManager(
-        players=[player1, player2],
-        enemies=[monster1, monster2],
-        mode="manual"  # 手动回合，可选择攻击/道具/技能/逃跑
-    )
-    battle.start_battle()
+    team = Team([player1, player2])
+    battle_event = BattleEvent([monster1, monster2])
+    game_map = Map(5, 5, team)
+
+
+    game_map.grid[0][1] = Tile(event = battle_event, tile_type = "M")
+
+    game_map.show()
+
+    # 玩家移动
+    while True:
+        cmd = input("输入方向 (w/a/s/d, q退出): ")
+        if cmd == "q":
+            break
+        moves = {"w": (0, -1), "s": (0, 1), "a": (-1, 0), "d": (1, 0)}
+        if cmd in moves:
+            dx, dy = moves[cmd]
+            team.move(dx, dy, game_map)
+            game_map.show()
+
+
+
+    # battle = BattleManager(
+    #     players=[player1, player2],
+    #     enemies=[monster1, monster2],
+    #     mode="manual"  # 手动回合，可选择攻击/道具/技能/逃跑
+    # )
+    # battle.start_battle()
