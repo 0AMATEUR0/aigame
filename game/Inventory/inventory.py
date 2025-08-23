@@ -74,7 +74,7 @@ class Inventory:
             return False, f"{item.name} 数量不足，未能移除 {quantity} 个"
 
         to_remove = quantity
-        for slot in self.items[:]:  # 用切片复制避免遍历时修改
+        for slot in self.items[:]:
             if slot["item"].id == item.id:
                 if slot["quantity"] > to_remove:
                     slot["quantity"] -= to_remove
@@ -84,6 +84,7 @@ class Inventory:
                     self.items.remove(slot)
                     if to_remove == 0:
                         return True, f"已移除 {item.name} * {quantity}"
+        return True, f"已移除 {item.name} * {quantity}"
 
     # ----------------- 查询 -----------------
     def list_items(self):

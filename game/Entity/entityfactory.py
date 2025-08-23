@@ -2,6 +2,8 @@ import json
 from typing import Dict, Any
 from game.Entity.character import Character
 from game.Entity.monster import Monster
+from game.Item.item import Weapon
+
 
 class EntityFactory:
     """
@@ -12,6 +14,8 @@ class EntityFactory:
     """
 
     # 角色模板
+    sword = Weapon("铁剑", attack_bonus=2, damage_dice="1d6")
+    staff = Weapon("法杖", attack_bonus=1, damage_dice="1d4")
     CHARACTER_TEMPLATES: Dict[str, Dict[str, Any]] = {
         "战士": {"name": "战士", "STR": 16, "DEX": 12, "CON": 14, "INT": 8, "WIS": 10, "CHA": 10,
                 "HP": 30, "MP": 10, "occupation": "战士"},
@@ -22,9 +26,9 @@ class EntityFactory:
     # 怪物模板
     MONSTER_TEMPLATES: Dict[str, Dict[str, Any]] = {
         "哥布林": {"name": "哥布林", "STR": 8, "DEX": 14, "CON": 10, "INT": 6, "WIS": 8, "CHA": 6,
-                  "HP": 10, "MP": 0, "AC": 12, "Speed": 30, "exp_reward": 50, "currency_reward": 100, "item_reward": []},
+                  "HP": 10, "MP": 0, "AC": 12, "Speed": 30, "exp_reward": 50, "currency_reward": 100, "item_reward": [sword]},
         "兽人": {"name": "兽人", "STR": 16, "DEX": 10, "CON": 14, "INT": 8, "WIS": 10, "CHA": 8,
-                 "HP": 20, "MP": 0, "AC": 13, "Speed": 30, "exp_reward": 120, "currency_reward": 200, "item_reward": []},
+                 "HP": 20, "MP": 0, "AC": 13, "Speed": 30, "exp_reward": 120, "currency_reward": 200, "item_reward": [staff]},
     }
 
     @classmethod

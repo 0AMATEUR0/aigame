@@ -1,8 +1,5 @@
 # === 地图系统 ===
-from typing import Optional
-
-from game.Event.event import Event
-from game.Team.team import Team
+from game.Inventory.inventory import Inventory
 
 
 class Tile:
@@ -11,7 +8,7 @@ class Tile:
         self.event = event
         self.tile_type = tile_type  # "." 空地, "M" 怪物, "S" 商店, "T" 宝物等
         self.explored = False       # 是否已探索过（Fog of War 用）
-
+        self.inventory = Inventory(capacity=float("inf"), max_weight=float("inf"))
 
 
 class Map:

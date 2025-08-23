@@ -1,7 +1,6 @@
-from game.Event.event import BattleEvent
 from game.Map.map import Map, Tile
 from game.Skill.skill import Skill
-from game.Event.battle import BattleManager
+from game.Event.battle import BattleEvent
 from game.Entity.entityfactory import EntityFactory
 from game.Item.item import Weapon, HPPotion
 from game.Team.team import Team

@@ -1,7 +1,100 @@
 import math
 import random
+from typing import List
+
+from game.Entity.monster import Monster
+from game.Event.event import Event
 from game.Item.item import Consumable
+from game.Map.map import Tile
+from game.Team.team import Team
 from utils.dice import roll_detail
+
+class BattleEvent(Event):
+    def __init__(self, monsters: List[Monster], description: str = ""):
+        super().__init__(description)
+        self.monsters = monsters
+
+    def trigger(self, team: Team, tile: Tile):
+        if self.triggered:
+            print("⚠️ 战斗事件已解决，无法再次触发。")
+            return
+
+        battle = BattleManager(
+            players=team.members,
+            enemies=self.monsters,
+            mode="manual"  # 手动回合，可选择攻击/道具/技能/逃跑
+        )
+        battle.start_battle()
+
+        if not team.is_alive():
+            print("💀 游戏结束")
+        else:
+            reward = battle.reward or {}
+
+            print(f"🎉 战斗胜利！奖励: {reward}")
+
+            # 取得经验
+            exp = reward.get("exp", 0)
+            if exp > 0:
+                team.gain_experience(exp)
+
+            # 取得货币
+            money = reward.get("currency", 0)
+            if money > 0:
+                team.gain_currency(money)
+
+            # 掉落物品
+            items = reward.get("items", [])
+            if not isinstance(items, list):
+                items = []
+            items = [i for i in items if i]  # ✅ 清理掉 [] 或 None
+            for item in items:
+                tile.inventory.add(item)
+            if items:
+                print(f"掉落物已放入当前格子背包: {[i.name for i in items]}")
+
+            # -----------------------------
+            # 玩家选择拾取
+            # -----------------------------
+            for slot in list(tile.inventory.items):
+                item = slot["item"]
+                quantity = slot["quantity"]
+                choice = input(f"是否拾取 {item.name}? (y/n): ")
+                if choice.lower() != "y":
+                    continue
+
+                allocated = False
+                while not allocated:
+                    print(f"\n选择物品 {item.name} 放入哪个背包：")
+                    for i, member in enumerate(team.members):
+                        print(f"{i}. {member.name} (已有 {len(member.inventory.items)} 件物品)")
+                    print("t. 放入队伍背包")
+
+                    target = input("请输入编号或 t：")
+                    if target.lower() == "t":
+                        success, msg = team.inventory.add(item)
+                        if success:
+                            print(f"{item.name} 放入队伍背包")
+                            tile.inventory.remove(item)
+                            allocated = True
+                        else:
+                            print(f"失败: {msg}")
+                    elif target.isdigit():
+                        idx = int(target)
+                        if 0 <= idx < len(team.members):
+                            success, msg = team.members[idx].inventory.add(item)
+                            if success:
+                                print(f"{item.name} 放入 {team.members[idx].name} 背包")
+                                tile.inventory.remove(item)
+                                allocated = True
+                            else:
+                                print(f"失败: {msg}")
+                        else:
+                            print("无效编号")
+                    else:
+                        print("输入无效，请重新选择")
+
+            self.triggered = True
 
 
 class BattleManager:

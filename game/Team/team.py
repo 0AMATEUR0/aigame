@@ -51,7 +51,7 @@ class Team:
                 print(f"移动到 {self.position}")
                 if tile.event:
                     print("触发事件！")
-                    tile.event.trigger(self)
+                    tile.event.trigger(self, tile)
             else:
                 print("这里不能走。")
         else:
